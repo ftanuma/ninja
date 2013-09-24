@@ -47,15 +47,31 @@ string EscapeForDepfile(const string& path) {
   return Replace(path, " ", "\\ ");
 }
 
+
 // static
 string CLParser::FilterShowIncludes(const string& line) {
   static const char kMagicPrefix[] = "Note: including file: ";
+
+  // Prefix in SJIS of Japanese MSVC
+  static const unsigned char kMagicPrefix_JP[] = {
+    0x83, 0x81, 0x83, 0x82, 0x3A, 0x20, 0x83, 0x43, 0x83, 0x93, 0x83, 0x4E
+    , 0x83, 0x8B, 0x81, 0x5B, 0x83, 0x68, 0x20, 0x83, 0x74, 0x83, 0x40
+    , 0x83, 0x43, 0x83, 0x8B, 0x3A, 0x00
+  };
+
   const char* in = line.c_str();
   const char* end = in + line.size();
 
   if (end - in > (int)sizeof(kMagicPrefix) - 1 &&
       memcmp(in, kMagicPrefix, sizeof(kMagicPrefix) - 1) == 0) {
     in += sizeof(kMagicPrefix) - 1;
+    while (*in == ' ')
+      ++in;
+    return line.substr(in - line.c_str());
+  }
+  else if (end - in > (int)sizeof(kMagicPrefix_JP) - 1 &&
+      memcmp(in, kMagicPrefix_JP, sizeof(kMagicPrefix_JP) - 1) == 0) {
+    in += sizeof(kMagicPrefix_JP) - 1;
     while (*in == ' ')
       ++in;
     return line.substr(in - line.c_str());
