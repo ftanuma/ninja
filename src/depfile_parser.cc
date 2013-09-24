@@ -203,6 +203,12 @@ yy16:
       parsing_targets = false;
     }
 
+    // In case of the target is found again, ignore it.
+    if(parsing_targets == false
+      && StringPiece(filename, len) == out_){
+      continue;
+    }
+
     if (len == 0)
       continue;
 
