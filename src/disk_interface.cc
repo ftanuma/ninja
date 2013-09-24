@@ -75,8 +75,20 @@ bool DiskInterface::MakeDirs(const string& path) {
 
 // RealDiskInterface -----------------------------------------------------------
 
-TimeStamp RealDiskInterface::Stat(const string& path) {
+TimeStamp RealDiskInterface::Stat(const string& _path) {
 #ifdef _WIN32
+  string path = _path;
+
+  // In case of the path is double-quoted, remove double
+  // quotations otherwise GetFileAttributesEx will fail.
+  if(path.size() > 2){
+    if( path.compare(0, 1, "\"") == 0 
+      && path.compare(path.size() - 1, 1, "\"") == 0 )
+    {
+      path = path.substr(1, path.size()-2);
+    }
+  }
+
   // MSDN: "Naming Files, Paths, and Namespaces"
   // http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
   if (!path.empty() && path[0] != '\\' && path.size() > MAX_PATH) {
